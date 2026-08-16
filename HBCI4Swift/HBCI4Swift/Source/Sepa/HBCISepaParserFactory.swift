@@ -15,7 +15,7 @@ class HBCISepaParserFactory {
             switch format.variant {
             case "003":
                 switch format.version {
-                case "03": return HBCISepaParser_001_003_03(format: format);
+                case "03": return HBCISepaParser_001_003_03();
                     
                 default:
                     logInfo("SEPA Credit variant \(format.variant ?? "?") version \(format.version ?? "?") is not supported");
@@ -23,7 +23,7 @@ class HBCISepaParserFactory {
                 }
             case "001":
                 switch format.version {
-                case "03": return HBCISepaParser_001_001_03(format: format);
+                case "03": return HBCISepaParser_001_001_03();
                     
                 default:
                     logInfo("SEPA Credit variant \(format.variant ?? "?") version \(format.version ?? "?") is not supported");

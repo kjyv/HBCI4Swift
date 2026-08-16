@@ -8,15 +8,16 @@
 
 import Foundation
 
-class HBCICamtParser_052_001_02 : HBCICamtParser {
+class HBCICamtParser_052_001_02 : HBCISepaParser, HBCICamtParser {
     
     func parse(_ account:HBCIAccount, data:Data, isPreliminary:Bool) ->[HBCIStatement]? {
+        
+        logDebug(String(data: data, encoding: String.Encoding.utf8) ?? "<binary data>")
         
         do {
             let document = try XMLDocument(data: data, options: XMLNode.Options(rawValue: XMLNode.Options.RawValue(Int(XMLDocument.Options.documentTidyXML.rawValue))))
             if let root = document.rootElement() {
                 var result = [HBCIStatement]();
-                let utility = HBCISepaUtility();
                 
                 // Group Header
                 // do we need something from Group Header?
@@ -74,11 +75,39 @@ class HBCICamtParser_052_001_02 : HBCICamtParser {
                         
                         item.currency = amount.currency;
                         if let dateString = entry.stringValueForPath("BookgDt.Dt") {
-                            item.date = utility.stringToDate(dateString);
+                            item.date = stringToDate(dateString);
                         }
+                        
+                        if item.date == nil {
+                            if let dateString = entry.stringValueForPath("BookgDt.DtTm") {
+                                item.date = timestampToDate(dateString);
+                            }
+                        }
+                        
                         if let dateString = entry.stringValueForPath("ValDt.Dt") {
-                            item.valutaDate = utility.stringToDate(dateString);
+                            item.valutaDate = stringToDate(dateString);
                         }
+                        if item.valutaDate == nil {
+                            if let dateString = entry.stringValueForPath("ValDt.DtTm") {
+                                item.valutaDate = timestampToDate(dateString);
+                            }
+                        }
+                        
+                        if item.date == nil && item.valutaDate == nil {
+                            logInfo("Skipping entry without date or valuta date:")
+                            logInfo(entry.description)
+                            continue
+                        }
+                        
+                        // get whatever date we have...
+                        if item.valutaDate == nil {
+                            item.valutaDate = item.date;
+                        }
+                        
+                        if item.date == nil {
+                            item.date = item.valutaDate;
+                        }
+                        
                         item.bankReference = entry.stringValueForPath("AcctSvcrRef");
                         item.transactionText = entry.stringValueForPath("AddtlNtryInf");
                         guard let detElem = entry.elementsForPath("NtryDtls.TxDtls").first else {

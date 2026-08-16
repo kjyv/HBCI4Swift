@@ -138,7 +138,7 @@ open class HBCICamtStatementsOrder: HBCIOrder {
             }
         }
         
-        if camtFormat!.hasSuffix("052.001.02") {
+        if camtFormat!.hasSuffix("052.001.02") || camtFormat!.hasSuffix("052.001.02.xsd"){
             parser = HBCICamtParser_052_001_02();
         } else {
             parser = HBCICamtParser_052_001_08();

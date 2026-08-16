@@ -9,12 +9,13 @@
 import Foundation
 
 class HBCISepaParser {
-    let format:HBCISepaFormat;
+    //let format:HBCISepaFormat;
 
     let numberFormatter = NumberFormatter();
+    let dateTimeFormatter = ISO8601DateFormatter();
 
-    init(format:HBCISepaFormat) {
-        self.format = format;
+    init() {
+        //self.format = format;
         initFormatters();
     }
     
@@ -24,6 +25,9 @@ class HBCISepaParser {
         numberFormatter.minimumFractionDigits = 2;
         numberFormatter.maximumFractionDigits = 2;
         numberFormatter.generatesDecimalNumbers = true;
+        
+        dateTimeFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds];
+
     }
     
     func stringToNumber(_ s:String) ->NSDecimalNumber? {
@@ -35,13 +39,18 @@ class HBCISepaParser {
         }
     }
     
+    func timestampToDate(_ s:String) ->Date? {
+        return dateTimeFormatter.date(from: s);
+    }
+    
     func stringToDate(_ s:String) ->Date? {
         let formatter = DateFormatter();
         formatter.dateFormat = "yyyy-MM-dd";
-        if let date = formatter.date(from: s) {
+        let str = String(s.prefix(10));
+        if let date = formatter.date(from: str) {
             return date;
         } else {
-            logInfo("Sepa document parser: not able to convert \(s) to a date");
+            logInfo("Sepa document parser: not able to convert \(str) to a date");
             return nil;
         }
     }

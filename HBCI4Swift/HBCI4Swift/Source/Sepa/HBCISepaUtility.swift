@@ -11,6 +11,7 @@ import Foundation
 class HBCISepaUtility {
     let numberFormatter = NumberFormatter();
     let dateFormatter = DateFormatter();
+    let dateTimeFormatter = ISO8601DateFormatter();
 
     init() {
         initFormatters();
@@ -24,6 +25,8 @@ class HBCISepaUtility {
         numberFormatter.generatesDecimalNumbers = true;
 
         dateFormatter.dateFormat = "yyyy-MM-dd";
+        
+        dateTimeFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds];
     }
 
     func stringToNumber(_ s:String) ->NSDecimalNumber? {
@@ -35,11 +38,16 @@ class HBCISepaUtility {
         }
     }
     
+    func timestampToDate(_ s:String) ->Date? {
+        return dateTimeFormatter.date(from: s);
+    }
+    
     func stringToDate(_ s:String) ->Date? {
-        if let date = dateFormatter.date(from: s) {
+        let str = String(s.prefix(10));
+        if let date = dateFormatter.date(from: str) {
             return date;
         } else {
-            logInfo("Sepa document parser: not able to convert \(s) to a date");
+            logInfo("Sepa document parser: not able to convert \(str) to a date");
             return nil;
         }
     }

@@ -49,13 +49,24 @@ public struct HBCIAccountBalance {
             return nil;
         }
         
-        guard let dateString = element.stringValueForPath("Dt.Dt") else {
-            return nil;
+        if let dateString = element.stringValueForPath("Dt.Dt") {
+            guard let postingDate = utility.stringToDate(dateString) else {
+                logDebug("Balance string " + dateString + " could not be converted to a date");
+                return nil;
+            }
+            self.postingDate = postingDate;
+        } else {
+            guard let dateString = element.stringValueForPath("Dt.DtTm") else {
+                logDebug("No balance date string found!");
+                return nil
+            }
+            guard let postingDate = utility.timestampToDate(dateString) else {
+                logDebug("Balance string " + dateString + " could not be converted to a timestamp");
+                return nil;
+            }
+            self.postingDate = postingDate;
         }
-        guard let postingDate = utility.stringToDate(dateString) else {
-            return nil;
-        }
-        self.postingDate = postingDate;
+                
         
         guard let balanceType = element.stringValueForPath("Tp.CdOrPrtry.Cd") else {
             return nil;
