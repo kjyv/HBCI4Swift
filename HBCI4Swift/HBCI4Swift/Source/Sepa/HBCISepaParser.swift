@@ -55,6 +55,14 @@ class HBCISepaParser {
         }
     }
     
+    // Fallback for reports that do not name the account.
+    func transferAccountData(_ account:HBCIAccount, statement:HBCIStatement) {
+        statement.localAccountNumber = account.number;
+        statement.localIBAN = account.iban;
+        statement.localBankCode = account.bankCode;
+        statement.localBIC = account.bic;
+    }
+
     func checkTransferData(_ iban:String?, bic:String?, name:String?, value:NSDecimalNumber?, currency:String?) ->Bool {
         if iban == nil {
             logInfo("Sepa document parser: IBAN is missing");

@@ -126,8 +126,6 @@ open class HBCICamtStatementsOrder: HBCIOrder {
     }
 
     override open func updateResult(_ result: HBCIResultMessage) {
-        var parser:HBCICamtParser!
-        
         super.updateResult(result);
         
         // check whether result is incomplete
@@ -138,15 +136,23 @@ open class HBCICamtStatementsOrder: HBCIOrder {
             }
         }
         
-        if camtFormat!.hasSuffix("052.001.02") || camtFormat!.hasSuffix("052.001.02.xsd"){
-            parser = HBCICamtParser_052_001_02();
-        } else {
-            parser = HBCICamtParser_052_001_08();
-        }
-        
         // now parse statements
         self.statements.removeAll();
         for seg in resultSegments {
+            // Each segment names its own CAMT format.
+            guard let descriptor = seg.elementValueForPath("camt_descriptor") as? String else {
+                logError("No camt_descriptor in return segment");
+                continue;
+            }
+            let parser:HBCICamtParser;
+            if descriptor.hasSuffix("052.001.02") || descriptor.hasSuffix("052.001.02.xsd") {
+                logDebug("use CAMT parser 052.001.02");
+                parser = HBCICamtParser_052_001_02();
+            } else {
+                logDebug("use CAMT parser 052.001.08");
+                parser = HBCICamtParser_052_001_08();
+            }
+            
             if let booked_list = seg.elementValuesForPath("booked.statement") as? [Data] {
                 
                 for var booked in booked_list {

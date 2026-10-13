@@ -36,6 +36,7 @@ class HBCICamtParser_052_001_02 : HBCISepaParser, HBCICamtParser {
                             }
                         }
                     }
+                    transferAccountData(account, statement: statement);
                     statement.statementRef = report.stringValueForPath("Id");
                     statement.statementNumber = report.stringValueForPath("ElctrncSeqNb")
                     statement.localIBAN = report.stringValueForPath("Acct.Id.IBAN");

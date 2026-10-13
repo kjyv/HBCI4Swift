@@ -18,11 +18,11 @@ class HBCISyntaxElementReference {
         self.elemDescr = description;
 
         var num = element.valueForAttribute("minnum")
-        if num != nil {
-            self.minnum = Int(num!) ?? 1
-        } else {
-            self.minnum = 1;
+        if num == nil {
+            // Optional when all children are optional. This includes DEs, which have no children.
+            num = description.children.allSatisfy({ $0.minnum == 0 }) ? "0" : "1";
         }
+        self.minnum = Int(num!) ?? 1
         num = element.valueForAttribute("maxnum")
         if num != nil {
             self.maxnum = Int(num!) ?? 1
